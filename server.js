@@ -1,67 +1,15 @@
-const http = require("http");
+const express = require("express");
+const dotenv = require("dotenv");
 
-const todos = [
-  { id: 1, text: "Todo One" },
-  { id: 2, text: "Todo Two" },
-  { id: 3, text: "Todo Three" },
-];
+// Load env vars
 
-const server = http.createServer((req, res) => {
-  const { method, url } = req;
-  let body = [];
+dotenv.config({ path: "./config/config.env" });
 
-  req
-    .on("data", (chunk) => {
-      body.push(chunk);
-    })
-    .on("end", () => {
-      body = Buffer.concat(body).toString();
+const app = express();
 
-      let status = 404;
-      const response = {
-        success: false,
-        data: null,
-      };
+const PORT = process.env.PORT || 5000;
 
-      if (method === "GET" && url === "/todos") {
-        status = 200;
-        response.success = true;
-        response.data = todos;
-      } else if (method === "POST" && url === "/todos") {
-        const { id, text } = JSON.parse(body);
-
-        if (!id || !text) {
-          status = 400;
-          response.error = "Please add id and text";
-        } else {
-          todos.push({ id, text });
-          status = 201;
-          response.success = true;
-          response.data = todos;
-        }
-      }
-
-      res.writeHead(status, {
-        "Content-Type": "application/json",
-        "X-Powered-By": "Node.js",
-      });
-      res.end(JSON.stringify(response));
-    });
-  res.writeHead(404, {
-    "Content-Type": "application/json",
-    "X-Powered-By": "Node.js",
-  });
-  res.end(
-    JSON.stringify({
-      success: false,
-      error: "Not Found",
-      data: null,
-    })
-  );
-});
-
-const PORT = 5000;
-
-server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+app.listen(
+  PORT,
+  console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`)
+);
